@@ -1,0 +1,8 @@
+#Ignore
+build
+coverage
+.next
+node_modules
+.husky
+.vscode
+public

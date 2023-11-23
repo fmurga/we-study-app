@@ -1,0 +1,7 @@
+{
+  "editor.CodeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "editor.formatOnSave": true,
+  "prettier.eslintIntegration": true
+}
