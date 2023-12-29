@@ -1,13 +1,17 @@
 'use server'
-import Post from '@/components/Post/Post'
-import PostModal from '@/components/Post/PostModal'
+
+import dynamic from 'next/dynamic'
+
+const Post = dynamic( () => import('@/components/Post/Post'))
+const PostModal = dynamic( () => import('@/components/Post/PostModal')) 
+
 
 export async function getPosts() {
   const res = await fetch(`${process.env.BACKEND_API_URL}/posts?limit=100000`, {
     next: { revalidate: 10 },
   })
   if (!res.ok) {
-    throw new Error('Failed to fetch data')
+    console.log("Error fetching posts")
   }
   return res.json()
 }
@@ -17,7 +21,7 @@ export async function getTags() {
     next: { revalidate: 10 },
   })
   if (!res.ok) {
-    throw new Error('Failed to fetch data')
+    console.log("Error fetching tags")
   }
   return res.json()
 }
