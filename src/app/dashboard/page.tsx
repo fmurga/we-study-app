@@ -1,80 +1,34 @@
+'use server'
 import Post from '@/components/Post/Post'
 import PostModal from '@/components/Post/PostModal'
 
-const PostMock = [
-  {
-    title: 'Lorem Ipsum',
-    description: 'Lorem ipsum dolor sit amet, consectetur adip',
-    createdAt: new Date(),
-    user: { fullname: 'John Doe' },
-  },
-  {
-    title: 'Lorem Ipsum',
-    description: 'Lorem ipsum dolor sit amet, consectetur adip',
-    createdAt: new Date(),
-    user: { fullname: 'John Doe' },
-  },
-  {
-    title: 'Lorem Ipsum',
-    description: 'Lorem ipsum dolor sit amet, consectetur adip',
-    createdAt: new Date(),
-    user: { fullname: 'John Doe' },
-  },
-  {
-    title: 'Lorem Ipsum',
-    description: 'Lorem ipsum dolor sit amet, consectetur adip',
-    createdAt: new Date(),
-    user: { fullname: 'John Doe' },
-  },
-  {
-    title: 'Lorem Ipsum',
-    description: 'Lorem ipsum dolor sit amet, consectetur adip',
-    createdAt: new Date(),
-    user: { fullname: 'John Doe' },
-  },
-  {
-    title: 'Lorem Ipsum',
-    description: 'Lorem ipsum dolor sit amet, consectetur adip',
-    createdAt: new Date(),
-    user: { fullname: 'John Doe' },
-  },
-  {
-    title: 'Lorem Ipsum',
-    description: 'Lorem ipsum dolor sit amet, consectetur adip',
-    createdAt: new Date(),
-    user: { fullname: 'John Doe' },
-  },
-  {
-    title: 'Lorem Ipsum',
-    description: 'Lorem ipsum dolor sit amet, consectetur adip',
-    createdAt: new Date(),
-    user: { fullname: 'John Doe' },
-  },
-  {
-    title: 'Lorem Ipsum',
-    description: 'Lorem ipsum dolor sit amet, consectetur adip',
-    createdAt: new Date(),
-    user: { fullname: 'John Doe' },
-  },
-  {
-    title: 'Lorem Ipsum',
-    description: 'Lorem ipsum dolor sit amet, consectetur adip',
-    createdAt: new Date(),
-    user: { fullname: 'John Doe' },
-  },
-  {
-    title: 'Lorem Ipsum',
-    description: 'Lorem ipsum dolor sit amet, consectetur adip',
-    createdAt: new Date(),
-    user: { fullname: 'John Doe' },
-  },
-]
+export async function getPosts() {
+  const res = await fetch(`${process.env.BACKEND_API_URL}/posts?limit=100000`, {
+    next: { revalidate: 10 },
+  })
+  if (!res.ok) {
+    throw new Error('Failed to fetch data')
+  }
+  return res.json()
+}
 
-export default function Dashboard() {
+export async function getTags() {
+  const res = await fetch(`${process.env.BACKEND_API_URL}/tags`, {
+    next: { revalidate: 10 },
+  })
+  if (!res.ok) {
+    throw new Error('Failed to fetch data')
+  }
+  return res.json()
+}
+
+export default async function Dashboard() {
+  const Posts = await getPosts()
+  const Tags = await getTags()
   return (
     <>
-      <PostModal />
-      {PostMock.map((post) => (
+      <PostModal tags={Tags} />
+      {Posts.map((post) => (
         <Post data={post} />
       ))}
     </>

@@ -1,33 +1,138 @@
 'use client'
 import { useFormStatus } from 'react-dom'
-import { useForm } from 'react-hook-form'
-import { useEffect, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { useContext, useEffect, useState } from 'react'
+import { DocumentIcon } from '@heroicons/react/24/outline'
+import { PhotoIcon } from '@heroicons/react/20/solid'
+import CustomButton from '../Buttons/CustomButton'
+import MultiSelect from '../FormInputs/MultiSelect'
+import { UserContext } from '@/context/UserContext'
+import dynamic from 'next/dynamic'
 import { postData } from '@/utils'
+const CreatableSelect = dynamic(() => import('react-select/creatable'), {
+  ssr: false,
+})
 
-const PostModal = () => {
+interface Tags {
+  id?: number
+  title?: string
+  label?: string
+  value?: string
+}
+interface data {
+  title: string
+  description: string
+  tags: Tags[]
+  images: any
+}
+
+interface Option {
+  readonly label: string
+  readonly value: number
+  readonly id: number
+}
+
+const PostModal = ({ tags }) => {
   const { pending } = useFormStatus()
-  const [submitError, setSubmitError] = useState(false)
+  const [submitError, setSubmitError] = useState({ status: false, message: '' })
+  // const [atachFile, setAtachfile] = useState(false)
+  const [atachImage, setAtachImage] = useState(false)
+  const { user } = useContext(UserContext)
   const {
     register,
     handleSubmit,
     formState: { errors },
-    formState,
     formState: { isSubmitSuccessful },
     reset,
-  } = useForm()
+    control,
+  } = useForm({
+    defaultValues: {
+      title: '',
+      description: '',
+      tags: [],
+      images: '',
+    },
+  })
+  const createOption = (label: string, id: string) => ({
+    label,
+    value: id,
+    id: id,
+  })
+
+  const defaultOptions = () => {
+    return tags.map((tag) => createOption(tag.title, tag.id))
+  }
+
+  const [isLoading, setIsLoading] = useState(false)
+  const [options, setOptions] = useState(defaultOptions)
+  const [value, setValue] = useState<Option | null>()
+
+  const handleCreate = (inputValue: string) => {
+    setIsLoading(true)
+    const body = { title: inputValue }
+    postData('/tags', body)
+      .then((result) => {
+        const newOption = createOption(result.title, result.id)
+        setOptions((prev) => [...prev, newOption])
+        setIsLoading(false)
+        setValue(newOption)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }
 
   useEffect(() => {
-    if (formState.isSubmitSuccessful) {
-      reset({ title: '', description: '' })
+    if (isSubmitSuccessful) {
+      reset({ title: '', description: '', images: '' })
     }
-  }, [formState, isSubmitSuccessful, reset])
+  }, [isSubmitSuccessful, reset])
 
-  const submitPost = async (data) => {
-    const post = { ...data }
+  const submitPost = async (data: data) => {
+    data.tags.forEach((tag) => {
+      delete tag.label
+      delete tag.value
+    })
+    const form = {
+      title: data.title,
+      description: data.description,
+      tags: data.tags,
+    }
     try {
-      postData('http://localhost:5000/api/posts', post)
+      const response = await fetch(`${process.env.BACKEND_API_URL}/posts`, {
+        method: 'POST',
+        headers: new Headers({
+          Authorization: 'Bearer ' + user?.token,
+          'Content-Type': 'application/json',
+        }),
+        body: JSON.stringify(form),
+      })
+        .then(async (result) => {
+          if (data.images) {
+            const { id } = await result.json()
+            const formData = new FormData()
+            formData.append('file', data.images[0])
+            const response = await fetch(
+              `${process.env.BACKEND_API_URL}/posts/${id}`,
+              {
+                method: 'PATCH',
+                headers: new Headers({
+                  Authorization: 'Bearer ' + user?.token,
+                }),
+                body: formData,
+              }
+            )
+          }
+        })
+        .catch((err) => {})
+      if (response.ok) {
+        reset({ title: '', description: '', images: '' })
+        await fetch(`${process.env.BACKEND_API_URL}/posts`)
+      } else {
+        setSubmitError({ status: false, message: response.statusText })
+      }
     } catch (error) {
-      setSubmitError(true)
+      setSubmitError({ status: false, message: error.message })
     }
   }
 
@@ -54,8 +159,41 @@ const PostModal = () => {
                 Completa el titulo
               </p>
             )}
+            <Controller
+              name="tags"
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <CreatableSelect
+                  unstyled
+                  className="mb-2"
+                  classNames={{
+                    control: () =>
+                      'border border-gray-300 rounded-md bg-slate-500 text-black relative',
+                    placeholder: () => 'px-3 text-slate-400',
+                    dropdownIndicator: () => 'text-slate-400 mr-2',
+                    option: () =>
+                      'bg-slate-500 border border-white text-white p-2',
+                    multiValue: () =>
+                      'bg-slate-400 border border-white rounded-sm text-white rounded p-1 ml-1',
+                    clearIndicator: () => 'text-red-400',
+                    multiValueRemove: () => 'bg-slate-400 text-red-400',
+                    noOptionsMessage: () =>
+                      'bg-slate-400 border border-whithe p-2',
+                  }}
+                  placeholder="Buscar etiquetas"
+                  isClearable
+                  isMulti
+                  isDisabled={isLoading}
+                  isLoading={isLoading}
+                  onChange={(newValue) => onChange(newValue)}
+                  onCreateOption={handleCreate}
+                  options={options}
+                  value={value}
+                />
+              )}
+            />
             <textarea
-              className="bg-slate-500 rounded border focus:border-blue-500 border-slate-500 leading-normal w-full h-20 py-2 px-3 font-medium placeholder-slate-400 placeholder:text-sm focus:outline-none focus:bg-slate-200 text-black"
+              className="bg-slate-500 rounded border focus:border-blue-500  border-slate-500 leading-normal w-full h-20 py-2 px-3 font-medium placeholder-slate-400 placeholder:text-sm focus:outline-none focus:bg-slate-200 text-black"
               placeholder="Escribe tu post"
               {...register('description', { required: true })}
               aria-invalid={errors.description ? 'true' : 'false'}
@@ -65,6 +203,40 @@ const PostModal = () => {
                 Completa la descripción
               </p>
             )}
+          </div>
+          <div className="flex w-full md:w-full px-3 mb-3 gap-3 justify-end">
+            {/* <div className={`${!atachFile && 'hidden'}`}>
+              <label htmlFor="">Agregar Archivo</label>
+              <input
+                id="files"
+                className={` relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-200 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary`}
+                type="file"
+                {...register('file', { required: false })}
+              />
+            </div> */}
+            <div className={`${!atachImage && 'hidden'}`}>
+              <label htmlFor="">Agregar Imagen</label>
+              <input
+                className={`relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-200 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary`}
+                type="file"
+                id="images"
+                {...register('images', { required: false })}
+              />
+            </div>
+            {/* <CustomButton onClick={() => setAtachfile(!atachFile)}>
+              <DocumentIcon
+                className={`h-5 w-5 mx-2 ${
+                  atachFile ? 'text-red-600' : 'text-green-600'
+                }`}
+              />
+            </CustomButton> */}
+            <CustomButton onClick={() => setAtachImage(!atachImage)}>
+              <PhotoIcon
+                className={`h-5 w-5 mx-2 ${
+                  atachImage ? 'text-red-600' : 'text-green-600'
+                }`}
+              />
+            </CustomButton>
           </div>
           <div className="w-full flex justify-end px-3">
             <div className="">
