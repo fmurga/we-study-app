@@ -13,16 +13,16 @@ interface Message {
 
 const ChatContainer = () => {
   const { open, setOpen } = useContext(ChatContext)
-  const { user } = useContext(UserContext)
+  const { currentUser } = useContext(UserContext)
   const [socket, setSocket] = useState<Socket>()
   const [inputValue, setInputValue] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
 
   useEffect(() => {
-    if (user && open) {
-      setSocket(connectToServer(user?.token))
+    if (currentUser && open) {
+      setSocket(connectToServer(currentUser?.token))
     }
-  }, [user, open])
+  }, [currentUser, open])
 
   useEffect(() => {
     if (socket) {

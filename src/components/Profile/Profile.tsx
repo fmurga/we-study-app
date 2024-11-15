@@ -2,16 +2,17 @@
 import { UserContext } from '@/context/UserContext'
 import TonyProfile from '@/public/images/Tony.jpg'
 import Image from 'next/image'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { useContext, useEffect } from 'react'
 
 const Profile = () => {
-  const { user } = useContext(UserContext)
+  const { currentUser } = useContext(UserContext)
   useEffect(() => {
     const verifyToken = async () => {
-      if (user) {
+      if (currentUser) {
         const payload = {
-          token: user.token,
+          token: currentUser.token,
         }
         await fetch(`${process.env.BACKEND_API_URL}/auth/check-token`, {
           method: 'POST',
@@ -27,25 +28,27 @@ const Profile = () => {
               redirect('/auth/login')
             }
           })
-          .catch((err) => {})
+          .catch((err) => { })
       }
     }
     verifyToken()
-  }, [user])
+  }, [currentUser])
   return (
-    <div className="inline-flex justify-center items-center gap-4">
+    <div className="inline-flex justify-center items-center gap-4 text-slate-100">
       <div className="flex flex-col">
-        <p>{user?.fullName || 'Tony Stark'}</p>
-        <p className="text-sm">{user?.username || 'IronMan'}</p>
+        <p>{currentUser?.fullName || 'Tony Stark'}</p>
+        <p className="text-sm">{currentUser?.username || 'IronMan'}</p>
       </div>
       <div className="rounded-full h-12 w-12">
-        <Image
-          className="rounded-full h-12 w-12"
-          src={user?.image || TonyProfile}
-          alt="Profile picture"
-          width={48}
-          height={48}
-        />
+        <Link href={`/we/profile/${currentUser?.username}`}>
+          <Image
+            className="rounded-full h-12 w-12"
+            src={currentUser?.image ? currentUser?.image : TonyProfile}
+            alt="Profile picture"
+            width={48}
+            height={48}
+          />
+        </Link>
       </div>
     </div>
   )

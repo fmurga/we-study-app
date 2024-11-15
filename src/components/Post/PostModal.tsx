@@ -37,7 +37,7 @@ const PostModal = ({ tags }) => {
   const [submitError, setSubmitError] = useState({ status: false, message: '' })
   // const [atachFile, setAtachfile] = useState(false)
   const [atachImage, setAtachImage] = useState(false)
-  const { user } = useContext(UserContext)
+  const { currentUser } = useContext(UserContext)
   const {
     register,
     handleSubmit,
@@ -102,7 +102,7 @@ const PostModal = ({ tags }) => {
       const response = await fetch(`${process.env.BACKEND_API_URL}/posts`, {
         method: 'POST',
         headers: new Headers({
-          Authorization: 'Bearer ' + user?.token,
+          Authorization: 'Bearer ' + currentUser?.token,
           'Content-Type': 'application/json',
         }),
         body: JSON.stringify(form),
@@ -117,14 +117,14 @@ const PostModal = ({ tags }) => {
               {
                 method: 'PATCH',
                 headers: new Headers({
-                  Authorization: 'Bearer ' + user?.token,
+                  Authorization: 'Bearer ' + currentUser?.token,
                 }),
                 body: formData,
               }
             )
           }
         })
-        .catch((err) => {})
+        .catch((err) => { })
       if (response.ok) {
         reset({ title: '', description: '', images: '' })
         await fetch(`${process.env.BACKEND_API_URL}/posts`)
@@ -232,9 +232,8 @@ const PostModal = ({ tags }) => {
             </CustomButton> */}
             <CustomButton onClick={() => setAtachImage(!atachImage)}>
               <PhotoIcon
-                className={`h-5 w-5 mx-2 ${
-                  atachImage ? 'text-red-600' : 'text-green-600'
-                }`}
+                className={`h-5 w-5 mx-2 ${atachImage ? 'text-red-600' : 'text-green-600'
+                  }`}
               />
             </CustomButton>
           </div>

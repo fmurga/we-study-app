@@ -9,10 +9,11 @@ export interface User {
   fullName: string
   image: string
   token: string
+  bio: string
 }
 
 interface UserContextType {
-  user: User | null
+  currentUser: User | null
   setUser: React.Dispatch<React.SetStateAction<User | null>>
   login: (userData: User) => void
   registerUser: (userData: User) => void
@@ -22,7 +23,7 @@ interface UserContextType {
 }
 
 export const UserContext = createContext<UserContextType>({
-  user: null,
+  currentUser: null,
   setUser: () => null,
   login: () => null,
   registerUser: () => null,
@@ -34,7 +35,7 @@ export const UserContext = createContext<UserContextType>({
 export const UserContextProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<User | null>(null)
+  const [currentUser, setUser] = useState<User | null>(null)
   const [isAlwaysLogged, setIsAlwaysLogged] = useState<boolean>(false)
 
   const login = (userData: User) => {
@@ -97,10 +98,9 @@ export const UserContextProvider: React.FC<{ children: ReactNode }> = ({
   }, [])
 
   return (
-    // Provide the UserContext.Provider with values
     <UserContext.Provider
       value={{
-        user,
+        currentUser,
         setUser,
         login,
         logout,

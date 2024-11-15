@@ -77,11 +77,11 @@ const Post = ({ data }: dataTypes) => {
                 <ChatBubbleLeftRightIcon className="h-5 w-5" />
               </CustomButton>
             </div>
-            {/* <div className="flex text-gray-300 text-sm mr-4">
+            <div className="flex text-gray-300 text-sm mr-4">
               <CustomButton onClick={() => console.log('hi')}>
                 <ShareIcon className="h-5 w-5" />
               </CustomButton>
-            </div> */}
+            </div>
           </div>
         </div>
       </div>

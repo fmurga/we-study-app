@@ -18,13 +18,13 @@ const LoginForm = () => {
     reset,
     control,
   } = useForm()
-  const { login, user } = useContext(UserContext)
+  const { login, currentUser } = useContext(UserContext)
 
   useEffect(() => {
-    if (user) {
-      redirect('/dashboard')
+    if (currentUser) {
+      redirect('/we/dashboard')
     }
-  }, [user])
+  }, [currentUser])
 
   const submitLogin = async (data) => {
     const user = { ...data }

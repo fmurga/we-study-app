@@ -5,8 +5,6 @@ const RegisterForm = dynamic(() => import('@/components/Login/RegisterForm'), {
 
 export default function Register() {
   return (
-    <>
-      <RegisterForm />
-    </>
+    <RegisterForm />
   )
 }
