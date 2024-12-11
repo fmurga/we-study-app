@@ -20,9 +20,15 @@ export default function LandingPage() {
         <p className="text-lg text-gray-300 max-w-xl mb-6">
           Join the ultimate social network for students. Connect with peers, share knowledge, and build your network.
         </p>
-        <Link href="/auth/register" className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-600 transition duration-200">
-          Get Started
-        </Link>
+        <div className="inline-flex gap-3">
+          <Link href="/auth/register" className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-600 transition duration-200">
+            Sign Up
+          </Link>
+          <Link href="/auth/login" className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-600 transition duration-200">
+            Sing In
+          </Link>
+        </div>
+
       </section>
 
       <section className="py-16 bg-gray-800 px-4">

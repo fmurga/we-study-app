@@ -1,9 +1,8 @@
 'use client'
 import { UserContext } from '@/context/UserContext'
 import { postData } from '@/utils'
-import { redirect } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
-import { useFormStatus } from 'react-dom'
 import { Controller, useForm } from 'react-hook-form'
 import CustomButton from '../Buttons/CustomButton'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid'
@@ -11,6 +10,7 @@ import Link from 'next/link'
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false)
+  const router = useRouter()
   const {
     register,
     handleSubmit,
@@ -26,6 +26,10 @@ const LoginForm = () => {
     }
   }, [currentUser])
 
+  const handleGoogleLogin = () => {
+    router.push(`${process.env.GOOGLE_AUTH_URL}`);
+  };
+
   const submitLogin = async (data) => {
     const user = { ...data }
     try {
@@ -39,15 +43,16 @@ const LoginForm = () => {
       console.log(error)
     }
   }
+
   return (
     <>
       <div className="w-full h-100">
         <h1 className="text-xl md:text-2xl font-bold leading-tight mt-12">
-          Inicia sesión en tu cuenta
+          Sign in to your account
         </h1>
         <form className="mt-6" onSubmit={handleSubmit(submitLogin)}>
           <div>
-            <label className="block text-gray-700">Email</label>
+            <label className="block text-white">Email</label>
             <input
               type="email"
               placeholder="name@example.com"
@@ -60,17 +65,17 @@ const LoginForm = () => {
             />
             {errors.email?.type === 'required' && (
               <p role="alert" className="text-red-600 text-sm mb-2">
-                Complete con un email
+                Please enter an email address
               </p>
             )}
           </div>
 
-          <label className="block text-gray-700 mt-2">Contraseña</label>
+          <label className="block text-white mt-2">Password</label>
           <Controller
             name="password"
             control={control}
             rules={{
-              required: 'Debes completar con una contraseña',
+              required: 'Please enter a password',
             }}
             render={({ field }) => (
               <div
@@ -79,7 +84,7 @@ const LoginForm = () => {
               >
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Contraseña"
+                  placeholder="Password"
                   minLength={6}
                   className="w-full text-black px-3 py-2 rounded-lg bg-gray-200 border focus:border-blue-500
                 focus:bg-white focus:outline-none"
@@ -103,38 +108,39 @@ const LoginForm = () => {
           <div className="text-right mt-2">
             <a
               href="#"
-              className="text-sm font-semibold text-gray-700 hover:text-blue-700 focus:text-blue-700"
+              className="text-sm font-semibold text-white hover:text-blue-700 focus:text-blue-700"
             >
-              Olvidaste la contraseña?
+              Forgot your password?
             </a>
           </div>
 
-          <input
+          <button
             type="submit"
-            className="w-full block bg-indigo-500 hover:bg-indigo-400 focus:bg-indigo-400 text-white font-semibold rounded-lg
-              px-4 py-3 mt-6"
-            placeholder="Iniciar Sesión"
-          />
+            className="w-full block bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg cursor-pointer transition duration-200 px-4 py-3 mt-6"
+          >
+            Sign In
+          </button>
         </form>
 
         <hr className="my-6 border-gray-300 w-full" />
 
         <button
           type="button"
+          onClick={handleGoogleLogin}
           className="w-full block bg-white hover:bg-gray-100 focus:bg-gray-100 text-gray-900 font-semibold rounded-lg px-4 py-3 border border-gray-300"
         >
           <div className="flex items-center justify-center">
-            <span className="ml-4">Iniciar sesion con Google</span>
+            <span className="ml-4">Sign in with Google</span>
           </div>
         </button>
 
-        <div className="flex gap-4 mt-8 text-black">
-          <p>Necesitas una cuenta?</p>
+        <div className="flex gap-4 mt-8 text-white justify-center items-center">
+          <p>Need an account?</p>
           <Link
             href="/auth/register"
-            className="text-blue-500 hover:text-blue-700 font-semibold"
+            className=" w-3/5 text-center  bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg px-4 py-3 cursor-pointer transition duration-200"
           >
-            Registrate
+            Register
           </Link>
         </div>
       </div>

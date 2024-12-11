@@ -1,12 +1,21 @@
+'use client'
 import { UserContextProvider } from '@/context/UserContext';
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from 'next/navigation';
+import { useLayoutEffect } from 'react';
 
 export default function AuthTemplate({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  useLayoutEffect(() => {
+    const user = sessionStorage.getItem('currentUser')
+    if (user) {
+      redirect('/we/dashboard')
+    }
+  }, [])
   return (
     <section className="flex flex-col md:flex-row h-screen items-center bg-gradient-to-b from-blue-950 to-gray-900">
       {/* Left Section - Centered Logo and Message */}

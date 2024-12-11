@@ -19,12 +19,6 @@ const navigation = [
 ]
 
 const Navigation = () => {
-  useLayoutEffect(() => {
-    const user = sessionStorage.getItem('currentUser')
-    if (!user) {
-      redirect('/auth/login')
-    }
-  }, [])
   return (
     <UserContextProvider>
       <nav className="flex-no-wrap fixed top-0 flex w-full flex-row justify-between items-center h-20 px-20 bg-gray-900 z-10">

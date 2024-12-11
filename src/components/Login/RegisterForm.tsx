@@ -47,7 +47,7 @@ const RegisterForm = () => {
   };
 
   useEffect(() => {
-    if (isSubmitSuccessful && submitError.state === false) {
+    if (isSubmitSuccessful) {
       reset({
         fullName: '',
         username: '',
